@@ -19,7 +19,6 @@ void oddAndEvenSorting(vector<int> &v)
 			sortedV.push_back(*it);
 		}
 	}
-	auto itEndOfV = sortedV.end();
 	for (auto it = v.begin(); it != v.end(); it++)
 	{
 		if (*it % 2 == 0)	//if it's even
