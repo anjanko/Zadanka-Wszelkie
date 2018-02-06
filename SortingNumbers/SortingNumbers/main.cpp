@@ -40,7 +40,7 @@ void printVector(vector<int> &v)
 list<int>::iterator findNumber(list<int> &l, int number)
 {
 	auto it = l.begin();
-	while (it != l.end() && *it != 5)
+	while (it != l.end() && *it != number)
 	{
 		it++;
 	}
