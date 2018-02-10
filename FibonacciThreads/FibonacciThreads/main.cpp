@@ -2,27 +2,34 @@
 //trzeci liczy lcm obu liczb
 
 #include <iostream>
-#include <windows.h>
-#include <process.h>
+#include <thread>
 #include <string>
 #include <vector>
+#include <mutex>
 #define SEQUENCE_LENGHT 20
 using std::cout;
 using std::endl;
 using std::cin;
 using std::string;
-using std::vector;
+using std::thread;
 
-void __cdecl makeFibonSequence(void * args) {
-	int* p = (int*)args;
-	int startNum = p[0];
-	int* fs = &p[1];
-	fs[0] = 1;	//wiem, ze powinno byc startNum, ale jesli to bedzie np. 2, to nie bedzie wcale ciekawie
-	fs[1] = startNum;
+int fibon1[SEQUENCE_LENGHT];
+int fibon2[SEQUENCE_LENGHT];
+int lcmResult;
+long sum = 0;
+std::mutex mtx;
+
+void fibonacciSequence(int startNum, int* fArray) {
+	fArray[0] = 1;	//wiem, ze powinno byc startNum, ale jesli to bedzie np. 2, to nie bedzie wcale ciekawie
+	fArray[1] = startNum;
+	int fSum = fArray[0] + fArray[1];
 	for (int i = 2; i < SEQUENCE_LENGHT; i++) {
-		fs[i] = fs[i - 1] + fs[i - 2];
+		fArray[i] = fArray[i - 1] + fArray[i - 2];
+		fSum += fArray[i];
 	}
-	_endthread();
+	mtx.lock();
+	sum += fSum;
+	mtx.unlock();
 }
 
 int gcd(int a, int b) {	//greatest common divisor
@@ -35,38 +42,37 @@ int gcd(int a, int b) {	//greatest common divisor
 	return a;
 }
 
-void __cdecl lcm(void * args) {	//least common multiple
-	int* p = (int*)args;
-	int a = p[0];
-	int b = p[1];
+void lcm(int a, int b) {	//least common multiple
 	if (a < b) {
 		a, b = b, a;
 	}
-	int* lcmResult = &p[2];
-	*lcmResult = a*b / gcd(a, b);
+	lcmResult = a*b / gcd(a, b);
+	mtx.lock();
+	sum += lcmResult;
+	mtx.unlock();
 }
 
-void getCorrectNumbers(int* i1, int* i2, string* s1, string* s2) {
+void getCorrectNumbers(int* num1, int* num2, string* userStr1, string* userStr2) {
 	bool correct;
 	do {
 		try {
-			*i1 = stoi(*s1);
-			*i2 = stoi(*s2);
+			*num1 = stoi(*userStr1);
+			*num2 = stoi(*userStr2);
 			correct = true;
 		}
 		catch (...) {
 			cout << "Invalid arguments! Numbers have to be intiger. Enter them again." << endl;
 			cout << "First number: ";
-			cin >> *s1;
+			cin >> *userStr1;
 			cout << "Second number: ";
-			cin >> *s2;
+			cin >> *userStr2;
 			correct = false;
 		}
 	} while (!correct);
 }
 
 void printArray(int* fArray) {
-	for (int i = 1; i < SEQUENCE_LENGHT + 1; i++) {
+	for (int i = 0; i < SEQUENCE_LENGHT; i++) {
 		cout << fArray[i] << "\t";
 		if (i % 10 == 0) {
 			cout << endl;
@@ -75,37 +81,34 @@ void printArray(int* fArray) {
 }
 
 void main(int argc,char** argv) {
-	int i1, i2;
-	string s1, s2;
+	int num1, num2;
+	string userStr1, userStr2;
 	if (argc < 3) {
 		cout << "First number for first Fibonacci sequence: ";
-		cin >> s1;
+		cin >> userStr1;
 		cout << "First number for second sequence: ";
-		cin >> s2;
+		cin >> userStr2;
 	}
 	else {
-		s1 = argv[1];
-		s2 = argv[2];
+		userStr1 = argv[1];
+		userStr2 = argv[2];
 	}
-	getCorrectNumbers(&i1, &i2, &s1, &s2);
-	cout << "Numbers: " << i1 << " and " << i2;
-	vector <HANDLE> hThreads;
-	int fArgs1[SEQUENCE_LENGHT + 1];
-	fArgs1[0] = i1;
-	int fArgs2[SEQUENCE_LENGHT + 1];
-	fArgs2[0] = i2;
-	int lcmArgs[] = { i1,i2,0 };
-	hThreads.push_back((HANDLE)_beginthread(makeFibonSequence, 0, fArgs1));
-	hThreads.push_back((HANDLE)_beginthread(makeFibonSequence, 0, fArgs2));
-	hThreads.push_back((HANDLE)_beginthread(lcm, 0, lcmArgs));
-	if (WaitForMultipleObjects(hThreads.size(), &hThreads[0], TRUE, 10000) == WAIT_OBJECT_0) {
-		cout << endl;
-		printArray(fArgs1);
-		cout << endl;
-		printArray(fArgs2);
-		cout << endl;
-		cout << "The least common multiple: " << lcmArgs[2] << endl;
+	getCorrectNumbers(&num1, &num2, &userStr1, &userStr2);
+	cout << "Numbers: " << num1 << " and " << num2;
+	std::vector <thread> threads;
+	threads.push_back(thread(lcm, num1, num2));
+	threads.push_back(thread(fibonacciSequence, num1, fibon1));
+	threads.push_back(thread(fibonacciSequence, num2, fibon2));
+	for (auto& th : threads) {
+		th.join();
 	}
+	cout << endl;
+	printArray(fibon1);
+	cout << endl;
+	printArray(fibon2);
+	cout << endl;
+	cout << "The least common multiple: " << lcmResult << endl;
+	cout << "Sum of all: " << sum << endl;
 	getchar();
 
 }
