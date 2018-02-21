@@ -6,7 +6,7 @@ using std::cout;
 using std::endl;
 void main() {
 	std::vector<std::function<double(double, double)>> funVector;
-	funVector.reserve(3 * sizeof(std::function<double(double, double)>));
+	funVector.reserve(3);
 	funVector.emplace_back([](double arg1, double arg2) {
 		cout << "First function, I multiply " << arg1 << " by " << arg2 << "." << endl;
 		return arg1*arg2;

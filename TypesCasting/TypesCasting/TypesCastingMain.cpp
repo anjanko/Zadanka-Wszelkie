@@ -15,7 +15,7 @@ public:
 	virtual const string& getString() const { 
 		return s; 
 	}
-	void setString(string& ss) {
+	void setString(const string& ss) {
 		s = ss;
 	}
 };
@@ -26,7 +26,7 @@ private:
 public:
 	DerivedClass(){
 		i = 13;
-		setString(static_cast<string>("This is string in derived class."));
+		setString("This is string in derived class.");
 	}
 	virtual ~DerivedClass() = default;
 	int getInt() const { return i; }
@@ -36,20 +36,21 @@ int myFun(int* a) {
 	return *a + 3;
 }
 void main() {
+	float d = 6.33;
 	float f = 3.22;
-	float intF = (int)f;
-	cout << "Float number: " << f << ", casted to int: " << intF << endl;
-	char line[] = "Characters chain";
-	string strLine = static_cast<string>(line);
-	strLine.append(" is now a string.");
-	cout << strLine << endl;
+	float divisionResult = (int)d / (int)f;
+	cout << "Division of two float numbers (" << d << " and " << f << ") casted to int before: " 
+		<< divisionResult << endl;
+	int a = 7;
+	float b = static_cast<float>(a) + 0.33;
+	cout << "'A' is equal 7, casted to float to add 0.33. Result: " << b << endl;
 	const int constA = 12;
 	//myFun(&constA); <--doesn't work, it has to be int, not const int
 	cout << "Function myFun takes casted const int as parameter and here is the result: "
-		<< myFun(const_cast<int*>(&constA));
+		<< myFun(const_cast<int*>(&constA)) << endl;
 	BaseClass base;
 	DerivedClass der;
-	cout << "Fields in base class: s=\"" << base.getString() << "\"" << endl;
+	cout << endl << "Fields in base class: s=\"" << base.getString() << "\"" << endl;
 	cout << "Fields in derived class: s=\"" << der.getString() << "\", i=" << der.getInt() << endl;
 	BaseClass* castedDer = reinterpret_cast<BaseClass*>(&der);
 	DerivedClass* castedBase = reinterpret_cast<DerivedClass*>(&base);
@@ -57,5 +58,6 @@ void main() {
 	cout << "Fields in casted derived class: s=\"" << castedDer->getString() << "\"" << endl;
 	cout << "Fields in casted base class: s=\"" << castedBase->getString() << "\", i=" << 
 		castedBase->getInt() << endl;
+	getchar();
 
 }
