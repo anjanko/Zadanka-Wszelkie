@@ -32,9 +32,23 @@ public:
 	int getInt() const { return i; }
 };
 
+class BaseClass2{
+private:
+	float f;
+public:
+	BaseClass2();
+	~BaseClass2();
+}
+
+class DerivedClass2 : public BaseClass2{
+	DerivedClass2();
+	~DerivedClass2();
+}
+
 int myFun(int* a) {
 	return *a + 3;
 }
+
 void main() {
 	float d = 6.33;
 	float f = 3.22;
@@ -58,6 +72,11 @@ void main() {
 	cout << "Fields in casted derived class: s=\"" << castedDer->getString() << "\"" << endl;
 	cout << "Fields in casted base class: s=\"" << castedBase->getString() << "\", i=" << 
 		castedBase->getInt() << endl;
+	DerivedClass2 derived2;
+	BaseClass* derived2Casted = dynamic_cast<BaseClass*>(derived2);
+	if(!derived2Casted ){
+		std::cout << "Bad cast!";
+	}
 	getchar();
 
 }
