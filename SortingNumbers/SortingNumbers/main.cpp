@@ -74,4 +74,5 @@ int main()
 		cout << "Error! Couldn't find the element.";
 	}
 	getchar();
+	return 0;
 }
