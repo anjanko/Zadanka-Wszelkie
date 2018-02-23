@@ -37,7 +37,7 @@ void printVector(vector<int> &v)
 	}
 }
 
-list<int>::iterator findNumber(list<int> &l, int number)
+const list<int>::const_iterator findNumber(const list<int> &l, int number)
 {
 	auto it = l.begin();
 	while (it != l.end() && *it != number)
@@ -74,5 +74,4 @@ int main()
 		cout << "Error! Couldn't find the element.";
 	}
 	getchar();
-	return 0;
 }
